@@ -181,7 +181,7 @@ execute \
 
 # create version file
 
-install_version
+install_fontmgr_version
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -189,62 +189,3 @@ install_version
 run_exit
 
 # end
-
-sudoreq # sudo required
-#sudorun  # sudo optional
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Ensure directories exist
-
-mkd "$HOMEDIR"
-mkd "$FONTDIR"
-mkd "$CONF/CasjaysDev/fontmgr"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Main progam
-
-if [ -d "$APPDIR/.git" ]; then
-  execute \
-    "cd $APPDIR && \
-           git_update" \
-    "Updating $APPNAME font"
-else
-  if [ -d "$BACKUPDIR/$APPNAME" ]; then
-    rm_rf "$BACKUPDIR"/"$APPNAME"
-  fi
-  execute \
-    "mv_f $APPDIR $BACKUPDIR/$APPNAME && \
-           git_clone -q $REPO/$APPNAME $APPDIR" \
-    "Installing $APPNAME font"
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# run post install scripts
-
-run_postinst() {
-  ln_sf "$HOMEDIR/$APPNAME/fonts" "$FONTDIR/$APPNAME"
-  devnull fc-cache -fv
-}
-
-execute \
-  "run_postinst" \
-  "Running post install scripts"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# create version file
-
-if [ ! -f "$CONF/CasjaysDev/fontmgr/$APPNAME" ] && [ -f "$APPDIR/version.txt" ]; then
-  ln_sf "$APPDIR/version.txt" "$CONF/CasjaysDev/fontmgr/$APPNAME"
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# exit
-if [ ! -z "$EXIT" ]; then exit "$EXIT"; fi
-
-# end
-#/* vi: set expandtab ts=4 noai
